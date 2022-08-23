@@ -38,8 +38,6 @@ else:
         )
     
     
-    st.write(excelfile)
-    
     
     
     if sheet=="BUT000 - General":
