@@ -51,6 +51,7 @@ else:
         Violationanalysis=pd.DataFrame.from_dict(sheets_requiredfields_rules["BUT000 - General"],orient="index",columns=["Allowed Length"])
         Source_ID=[]
         LengthList=[]
+        MissingList=[]
         General=pd.read_excel(excelfile,header=None,sheet_name=sheet)
         
         Multi_header_selection=General[0:7].fillna("").values.tolist()
@@ -121,7 +122,9 @@ else:
             StringlengthFrame[col+" "+ "Length"]=StringlengthFrame[col].str.len()
             limit=sheets_requiredfields_rules[sheet][col]
             count=StringlengthFrame[col+" "+ "Length"][StringlengthFrame[col+" "+ "Length"]>limit].count()
-            LengthList.append(count)
+            MissingElements=(StringlengthFrame[col]=="Missing").sum()
+            MissingList.append(MissingElements) ##Number of not filled (missing) elements for required column
+            LengthList.append(count)            ##Number fo elements violating string length
     
         
         
@@ -131,43 +134,47 @@ else:
         
         
         labels=["TYPE","BU_GROUP","BU_SORT1","NAME_ORG1"]
-        values=LengthList
+        ValuesLength=LengthList
+        ValuesMissing=MissingList
         fig=go.Figure(
-            go.Pie(labels=labels,values=values,textinfo="value")
+            go.Pie(labels=labels,values=ValuesLength,textinfo="value")
+            )
+        fig1=go.Figure(
+            go.Pie(labels=labels,values=MissingList,textinfo="value")
             )
         
         # fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
-        
-        
-    
-    
-        # def color_violation(val):
-        #     color="red" if "- Violation of Rule" in str(val) else ""
-        #     return 'color: %s' % color
-        # General=General.style.applymap(color_violation)
-        # RequiredFieldsFrame=RequiredFieldsFrame.style.applymap(color_violation)
+        st.plotly_chart(fig1)
         
     
-        
-        
-        
-        
-        
-        def to_excel(df):
-            output = BytesIO()
-            writer = pd.ExcelWriter(output, engine='xlsxwriter')
-            df.to_excel(writer, index=False, sheet_name='BUT000 - General report')
-            workbook = writer.book
-            worksheet = writer.sheets['BUT000 - General report']
-            format1 = workbook.add_format({'num_format': '0.00'}) 
-            worksheet.set_column('A:A', None, format1)  
-            writer.save()
-            processed_data = output.getvalue()
-            return processed_data    
     
-        df_xlsx = to_excel(General)
-        st.sidebar.download_button(label="Download current sheet",data=df_xlsx,file_name="GeneralSheet.xlsx")
+        # # def color_violation(val):
+        # #     color="red" if "- Violation of Rule" in str(val) else ""
+        # #     return 'color: %s' % color
+        # # General=General.style.applymap(color_violation)
+        # # RequiredFieldsFrame=RequiredFieldsFrame.style.applymap(color_violation)
+        
+    
+        
+        
+        
+        
+        
+        # def to_excel(df):
+        #     output = BytesIO()
+        #     writer = pd.ExcelWriter(output, engine='xlsxwriter')
+        #     df.to_excel(writer, index=False, sheet_name='BUT000 - General report')
+        #     workbook = writer.book
+        #     worksheet = writer.sheets['BUT000 - General report']
+        #     format1 = workbook.add_format({'num_format': '0.00'}) 
+        #     worksheet.set_column('A:A', None, format1)  
+        #     writer.save()
+        #     processed_data = output.getvalue()
+        #     return processed_data    
+    
+        # df_xlsx = to_excel(General)
+        # st.sidebar.download_button(label="Download current sheet",data=df_xlsx,file_name="GeneralSheet.xlsx")
     
     
     
